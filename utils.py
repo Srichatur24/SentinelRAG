@@ -1,12 +1,14 @@
-from constants import MONGO_CLIENT, DATABASE_NAME, USERS_COLLECTION, EMBEDDING_MODEL, CLASSIFICATION_LEVELS
+from constants import MONGO_CLIENT, DATABASE_NAME, USERS_COLLECTION, AUDIT_COLLECTION, EMBEDDING_MODEL, CLASSIFICATION_LEVELS
 from classes import User, Document, AuditLog
 from pymongo import MongoClient
 from openai import OpenAI
+from dataclasses import asdict
 
 # connect mongodb
 mongo_client = MongoClient(MONGO_CLIENT)
 db = mongo_client[DATABASE_NAME]
 users_collection = db[USERS_COLLECTION]
+audit_collection = db[AUDIT_COLLECTION]
 
 # openai client for embeddings
 openai_client = OpenAI(
@@ -67,18 +69,6 @@ def evaluate_denials(store: "VectorStore", user: User, query: str, k: int, autho
         decisions.append({"doc_id": doc_id, "allowed": False, "reason": reason, "similarity": round(doc["similarity"], 4)})
     return decisions
 
-# print audit
-def print_audit(audit: AuditLog):
-    print("=" * 70)
-    print(f"Request ID:  {audit.request_id}")
-    print(f"Timestamp:   {audit.timestamp}")
-    print(f"User:        {audit.user_id}")
-    print(f"Query:       {audit.query}")
-    print(f"Candidates:  {audit.candidate_doc_ids}")
-    print("Authorization decisions:")
-    for d in audit.decisions:
-        status = "ALLOW" if d["allowed"] else "DENY "
-        print(f"  [{status}] {d['doc_id']:10s} sim={d['similarity']:.4f} - {d['reason']}")
-    print(f"Sent to LLM: {audit.docs_sent_to_llm}")
-    print(f"Answer:      {audit.answer}")
-    print("=" * 70)
+# save audit logs
+def save_audit(audit: AuditLog) -> None:
+    audit_collection.insert_one(asdict(audit))

@@ -5,6 +5,7 @@ CLASSIFICATION_LEVELS = ["Public", "Internal", "Confidential", "Restricted"]
 MONGO_CLIENT = 'mongodb://pragyaan-mongo:27017/'
 DATABASE_NAME = 'sentinelrag'
 USERS_COLLECTION = 'users'
+AUDIT_COLLECTION = 'audit_logs'
 
 # openai constants
 EMBEDDING_MODEL = "text-embedding-3-small"

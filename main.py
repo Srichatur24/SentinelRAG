@@ -1,7 +1,7 @@
 from constants import K, AGENT_MODEL
 from classes import User, AuditLog, RequestContext
 from vector_store import VectorStore
-from utils import department_role_authorized, evaluate_denials, resolve_order, get_documents, get_user, print_audit
+from utils import department_role_authorized, evaluate_denials, resolve_order, get_documents, get_user, save_audit
 import uuid
 from datetime import datetime, timezone
 from openai import AsyncOpenAI
@@ -83,4 +83,5 @@ if __name__ == "__main__":
     store.upsert_documents(documents)
 
     audit_result = asyncio.run(answer_question(query_arg, user, store))
-    print_audit(audit_result)
+    save_audit(audit_result)
+    print(audit_result.answer)
