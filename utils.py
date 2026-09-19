@@ -1,5 +1,5 @@
 from constants import MONGO_CLIENT, DATABASE_NAME, USERS_COLLECTION, EMBEDDING_MODEL, CLASSIFICATION_LEVELS
-from classes import User, Document
+from classes import User, Document, AuditLog
 from pymongo import MongoClient
 from openai import OpenAI
 
@@ -66,3 +66,19 @@ def evaluate_denials(store: "VectorStore", user: User, query: str, k: int, autho
             ok, reason = department_role_authorized(user, doc)
         decisions.append({"doc_id": doc_id, "allowed": False, "reason": reason, "similarity": round(doc["similarity"], 4)})
     return decisions
+
+# print audit
+def print_audit(audit: AuditLog):
+    print("=" * 70)
+    print(f"Request ID:  {audit.request_id}")
+    print(f"Timestamp:   {audit.timestamp}")
+    print(f"User:        {audit.user_id}")
+    print(f"Query:       {audit.query}")
+    print(f"Candidates:  {audit.candidate_doc_ids}")
+    print("Authorization decisions:")
+    for d in audit.decisions:
+        status = "ALLOW" if d["allowed"] else "DENY "
+        print(f"  [{status}] {d['doc_id']:10s} sim={d['similarity']:.4f} - {d['reason']}")
+    print(f"Sent to LLM: {audit.docs_sent_to_llm}")
+    print(f"Answer:      {audit.answer}")
+    print("=" * 70)
