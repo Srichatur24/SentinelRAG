@@ -1,6 +1,5 @@
 from constants import MONGO_CLIENT, DATABASE_NAME, USERS_COLLECTION, EMBEDDING_MODEL, CLASSIFICATION_LEVELS
 from classes import User, Document
-from vector_store import VectorStore
 from pymongo import MongoClient
 from openai import OpenAI
 
@@ -18,13 +17,13 @@ openai_client = OpenAI(
 
 # get the user info
 def get_user(user_id: str) -> User:
-    user = users_collection.find_one({"user_id": user_id})
+    user = users_collection.find_one({"user_id": user_id}, {"_id": 0})
     return User(**user)
 
 # get all documents of a collection
 def get_documents(collection: str) -> list[Document]:
-    docs = db[collection].find()
-    return [Document(**doc) for doc in docs]
+    docs = db[collection].find({}, {"_id": 0})
+    return [Document(**{**doc, "effective_date": str(doc["effective_date"])}) for doc in docs]
 
 # embed a string
 def embed_text(text: str) -> list[float]:

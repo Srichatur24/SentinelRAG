@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from vector_store import VectorStore
 
 @dataclass
 class User:

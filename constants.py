@@ -2,8 +2,8 @@
 CLASSIFICATION_LEVELS = ["Public", "Internal", "Confidential", "Restricted"]
 
 # mogodb constants
-MONGO_CLIENT = 'mongodb://localhost:27017/'
-DATABASE_NAME = 'SentinelRAG'
+MONGO_CLIENT = 'mongodb://pragyaan-mongo:27017/'
+DATABASE_NAME = 'sentinelrag'
 USERS_COLLECTION = 'users'
 
 # openai constants

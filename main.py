@@ -1,7 +1,7 @@
 from constants import K, AGENT_MODEL
 from classes import User, AuditLog, RequestContext
 from vector_store import VectorStore
-from utils import department_role_authorized, evaluate_denials, resolve_order
+from utils import department_role_authorized, evaluate_denials, resolve_order, get_documents, get_user, print_audit
 import uuid
 from datetime import datetime, timezone
 from openai import AsyncOpenAI
@@ -62,3 +62,25 @@ async def answer_question(query: str, user: User, store: VectorStore) -> AuditLo
     result = await Runner.run(agent, query, context=ctx)
     audit.answer = result.final_output
     return audit
+
+
+if __name__ == "__main__":
+    import asyncio
+    import sys
+
+    if len(sys.argv) != 4:
+        print("Usage: python sentinel_rag.py <user_id> <mongo_collection> <query>")
+        sys.exit(1)
+
+    user_id_arg = sys.argv[1]
+    collection_arg = sys.argv[2]
+    query_arg = sys.argv[3]
+
+    user = get_user(user_id_arg)
+    documents = get_documents(collection_arg)
+
+    store = VectorStore()
+    store.upsert_documents(documents)
+
+    audit_result = asyncio.run(answer_question(query_arg, user, store))
+    print_audit(audit_result)
